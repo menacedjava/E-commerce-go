@@ -1,0 +1,707 @@
+basePath: /api
+definitions:
+  models.Order:
+    properties:
+      _id:
+        type: string
+      price:
+        type: integer
+      product_id:
+        type: string
+      shipping_id:
+        type: string
+      shipping_price:
+        type: integer
+      status:
+        type: string
+      total_price:
+        type: integer
+    type: object
+  models.Product:
+    properties:
+      _id:
+        type: string
+      averageReview:
+        type: number
+      color:
+        items:
+          type: string
+        type: array
+      createdBy:
+        type: string
+      description:
+        type: string
+      images:
+        items:
+          type: string
+        type: array
+      name:
+        type: string
+      price:
+        type: number
+    type: object
+  models.Review:
+    properties:
+      _id:
+        type: string
+      description:
+        type: string
+      productId:
+        type: string
+      rating:
+        type: number
+      title:
+        type: string
+    type: object
+  models.Shipping:
+    properties:
+      _id:
+        type: string
+      address:
+        type: string
+      email:
+        type: string
+      f_name:
+        type: string
+      l_name:
+        type: string
+      phone_no:
+        type: string
+      state:
+        type: string
+    type: object
+  models.User:
+    properties:
+      _id:
+        type: string
+      email:
+        type: string
+      f_name:
+        type: string
+      gender:
+        type: string
+      l_name:
+        type: string
+      password:
+        type: string
+      phone_no:
+        type: string
+      role:
+        type: string
+    type: object
+host: 13.53.115.94
+info:
+  contact:
+    email: menaceteacher@gmail.com
+    name: menacedjava
+  description: An Ecommerce service API in Go using Gin framework.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: Gin Ecommerce Web
+  version: "1.0"
+paths:
+  /order:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves a list of all orders.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"message": "All orders", "orders": []}'
+          schema:
+            type: object
+        "500":
+          description: '{"message": "Internal Server Error"}'
+          schema:
+            type: object
+      summary: Get All Orders
+      tags:
+      - Order
+    post:
+      consumes:
+      - application/json
+      description: Creates a new order.
+      parameters:
+      - description: Order object
+        in: body
+        name: order
+        required: true
+        schema:
+          $ref: '#/definitions/models.Order'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: '{"message": "Created Successfully", "id": string}'
+          schema:
+            type: object
+        "500":
+          description: '{"message": "Internal Server Error"}'
+          schema:
+            type: object
+      summary: Create Order
+      tags:
+      - Order
+  /order/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves an order by ID.
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"message": "Success", "order": object}'
+          schema:
+            type: object
+        "500":
+          description: '{"message": "Internal Server Error"}'
+          schema:
+            type: object
+      summary: Get Order
+      tags:
+      - Order
+    put:
+      consumes:
+      - application/json
+      description: Updates the status of an order by ID.
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Order object
+        in: body
+        name: order
+        required: true
+        schema:
+          $ref: '#/definitions/models.Order'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"message": "Updated successfully", "count": integer}'
+          schema:
+            type: object
+        "400":
+          description: '{"message": "Order Status is empty"}'
+          schema:
+            type: object
+        "500":
+          description: '{"message": "Internal Server Error"}'
+          schema:
+            type: object
+      summary: Update Order
+      tags:
+      - Order
+  /order/shipping:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new shipping address.
+      parameters:
+      - description: Shipping object
+        in: body
+        name: shipping
+        required: true
+        schema:
+          $ref: '#/definitions/models.Shipping'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"message": "Created Successfully", "_id": string}'
+          schema:
+            type: object
+        "400":
+          description: '{"message": "Bad Request"}'
+          schema:
+            type: object
+        "500":
+          description: '{"message": "Internal Server Error"}'
+          schema:
+            type: object
+      summary: Create Shipping Address
+      tags:
+      - Shipping
+  /product/:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves a list of all products.
+      parameters:
+      - description: Price less than
+        in: query
+        name: lt
+        type: string
+      - description: Price greater than
+        in: query
+        name: gt
+        type: string
+      - description: Color filter
+        in: query
+        name: color
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"message": "All products", "products": []}'
+          schema:
+            type: object
+        "500":
+          description: '{"message": "Internal Server Error"}'
+          schema:
+            type: object
+      summary: Get All Products
+      tags:
+      - Product
+    post:
+      consumes:
+      - multipart/form-data
+      description: Creates a new product.
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Product Name
+        in: formData
+        name: name
+        required: true
+        type: string
+      - description: Product Description
+        in: formData
+        name: description
+        type: string
+      - description: Product Price
+        in: formData
+        name: price
+        required: true
+        type: number
+      - collectionFormat: csv
+        description: Product Colors
+        in: formData
+        items:
+          type: string
+        name: color
+        type: array
+      - description: Product Images
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: '{"message": "Created Product Successfully", "productId": string,
+            "id": string}'
+          schema:
+            type: object
+        "400":
+          description: '{"message": "Bad Request"}'
+          schema:
+            type: object
+        "500":
+          description: '{"message": "Error during creation of product"}'
+          schema:
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Create Product
+      tags:
+      - Product
+  /product/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes a product by ID.
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"message": "Product Deleted", "count": integer}'
+          schema:
+            type: object
+        "500":
+          description: '{"message": "Internal Server Error"}'
+          schema:
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Delete Product
+      tags:
+      - Product
+    get:
+      consumes:
+      - application/json
+      description: Retrieves product information by ID.
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"message": "Get product by id", "product": object}'
+          schema:
+            type: object
+        "404":
+          description: '{"message": "No Product Found"}'
+          schema:
+            type: object
+      summary: Get Product By ID
+      tags:
+      - Product
+    put:
+      consumes:
+      - application/json
+      description: Updates product information by ID.
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Product object
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/models.Product'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"message": "Updated Successfully", "count": integer}'
+          schema:
+            type: object
+        "400":
+          description: '{"message": "Bad Request"}'
+          schema:
+            type: object
+        "500":
+          description: '{"message": "Internal Server Error"}'
+          schema:
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Update Product
+      tags:
+      - Product
+  /review:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves a list of all reviews.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"total": integer, "reviews": []}'
+          schema:
+            type: object
+        "500":
+          description: '{"message": "Internal Server Error"}'
+          schema:
+            type: object
+      summary: Get All Reviews
+      tags:
+      - Review
+  /review/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes a review by ID.
+      parameters:
+      - description: Review ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"count": integer}'
+          schema:
+            type: object
+        "400":
+          description: '{"message": "Please Provide ID"}'
+          schema:
+            type: object
+        "500":
+          description: '{"message": "Internal Server Error"}'
+          schema:
+            type: object
+      summary: Delete Review
+      tags:
+      - Review
+    get:
+      consumes:
+      - application/json
+      description: Retrieves a review by ID.
+      parameters:
+      - description: Review ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"message": "Got successfully", "review": object}'
+          schema:
+            type: object
+        "500":
+          description: '{"message": "Internal Server Error"}'
+          schema:
+            type: object
+      summary: Get Review By ID
+      tags:
+      - Review
+    post:
+      consumes:
+      - application/json
+      description: Creates a new review for a product by ID.
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Review object
+        in: body
+        name: review
+        required: true
+        schema:
+          $ref: '#/definitions/models.Review'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"message": "Review added successfully", "id": string}'
+          schema:
+            type: object
+        "400":
+          description: '{"message": "Invalid data"}'
+          schema:
+            type: object
+        "500":
+          description: '{"message": "Error during creating review"}'
+          schema:
+            type: object
+      summary: Create Review
+      tags:
+      - Review
+    put:
+      consumes:
+      - application/json
+      description: Updates a review by ID.
+      parameters:
+      - description: Review ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Review object
+        in: body
+        name: review
+        required: true
+        schema:
+          $ref: '#/definitions/models.Review'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"updatedCount": integer}'
+          schema:
+            type: object
+        "400":
+          description: '{"message": "Provide the valid data"}'
+          schema:
+            type: object
+        "500":
+          description: '{"message": "Internal Server Error"}'
+          schema:
+            type: object
+      summary: Update Review
+      tags:
+      - Review
+  /user:
+    get:
+      description: Retrieves a list of all users.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"message": "All user list", "total": integer, "users": []}'
+          schema:
+            type: object
+        "404":
+          description: '{"message": "No users Found"}'
+          schema:
+            type: object
+      summary: Get All Users
+      tags:
+      - User
+    put:
+      consumes:
+      - application/json
+      description: Updates user information.
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: User object
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"message": "Updated successfully", "count": integer}'
+          schema:
+            type: object
+        "400":
+          description: '{"message": "Invalid info"}'
+          schema:
+            type: object
+        "500":
+          description: '{"message": "Error during updating user"}'
+          schema:
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Update User
+      tags:
+      - User
+  /user/{id}:
+    get:
+      description: Retrieves user information by ID.
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"message": "User information"}'
+          schema:
+            type: object
+        "404":
+          description: '{"message": "No user Found"}'
+          schema:
+            type: object
+      summary: Get User By Id
+      tags:
+      - User
+  /user/logout:
+    get:
+      description: Logs out the user by removing the token cookie.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"message": "Logout successfully"}'
+          schema:
+            type: object
+      summary: Logout User
+      tags:
+      - User
+  /user/profile:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves the profile information of the authenticated user.
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"user": "User profile information"}'
+          schema:
+            type: object
+        "401":
+          description: '{"message": "Unauthorized"}'
+          schema:
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Get User Profile
+      tags:
+      - User
+  /user/register:
+    post:
+      description: Responds with the message and token books as JSON.
+      parameters:
+      - description: User object
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"message": "Login Successfully", "token": string}'
+          schema:
+            type: object
+        "400":
+          description: '{"message": "Inavalid data"} "Bad request'
+          schema:
+            type: object
+        "401":
+          description: '{"message": "No user Found"} "Unauthorized er Error'
+          schema:
+            type: object
+      summary: Login User
+      tags:
+      - User
+swagger: "2.0"
